@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 // @JsonIgnoreProperties utilizado para ignorar as propriedades não mapeadas pela nossa classe
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Serie(@JsonAlias("Title") String titulo,
-                    @JsonAlias("totalSeasons") Integer temporada,
+                    @JsonAlias("totalSeasons") Integer totalTemporadas,
                     @JsonAlias("imdbRating") Double avaliacao) {
 
 }
