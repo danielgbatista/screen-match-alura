@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 // @JsonAlias normalmente utilizado para definir um ou mais apelidos para o nome da propriedade JSON associada
 // @JsonIgnoreProperties utilizado para ignorar as propriedades não mapeadas pela nossa classe
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record Serie(@JsonAlias("Title") String titulo,
-                    @JsonAlias("totalSeasons") Integer totalTemporadas,
-                    @JsonAlias("imdbRating") Double avaliacao) {
+public record DadosSerie(@JsonAlias("Title") String titulo,
+                         @JsonAlias("totalSeasons") Integer totalTemporadas,
+                         @JsonAlias("imdbRating") Double avaliacao) {
 
 }
