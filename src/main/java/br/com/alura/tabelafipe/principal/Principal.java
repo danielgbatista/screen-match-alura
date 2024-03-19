@@ -4,8 +4,11 @@ import br.com.alura.tabelafipe.model.*;
 import br.com.alura.tabelafipe.service.Consume;
 import br.com.alura.tabelafipe.service.ConvertData;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
     private Consume consumer = new Consume();
@@ -14,7 +17,7 @@ public class Principal {
     private final String QUERY_URL;
 
     public Principal (){
-        this.QUERY_URL = "https://parallelum.com.br/fipe/api/v2/";
+        this.QUERY_URL = "https://parallelum.com.br/fipe/api/v1/";
     }
 
     public void fipeConsultation() {
@@ -27,52 +30,57 @@ public class Principal {
         var chosenModel = reader.nextLine();
 
         if("CARRO".equals(chosenModel.toUpperCase())){
-            chosenModel = "cars/brands/";
+            chosenModel = "carros/marcas/";
         } else if ("MOTO".equals(chosenModel.toUpperCase())) {
-            chosenModel = "motorcycles/brands/";
+            chosenModel = "motos/marcas/";
         } else {
-            chosenModel = "trucks/brands/";
+            chosenModel = "caminhoes/marcas/";
         }
 
         var json = consumer.runQuery(QUERY_URL + chosenModel);
-
-        List<Data> brands = converter.getList(json, Data.class);
-
+        var brands = converter.getList(json, Datas.class);
         brands.stream()
-                .map(b -> new Brand(b.code(), b.name()))
+                .sorted(Comparator.comparing(Datas::code))
                 .forEach(System.out::println);
 
         System.out.println("Digite o código da marca escolhida: ");
         var brandId = reader.nextInt();
 
-        json = consumer.runQuery(QUERY_URL + chosenModel + brandId + "/models");
-
-        List<Data> models = converter.getList(json, Data.class);
-
-        models.stream()
-                .map(m -> new Model(m.code(), m.name()))
+        System.out.println("\n Modelos dessa marca:");
+        json = consumer.runQuery(QUERY_URL + chosenModel + brandId + "/modelos/");
+        var models = converter.getData(json, Brands.class);
+        models.models().stream()
+                .sorted(Comparator.comparing(Datas::code))
                 .forEach(System.out::println);
 
-        if(models.size() > 2){
-            System.out.println("Digite um trecho do nome do veículo para consulta: ");
-            var modelFilter = reader.next();
+        System.out.println("\nDigite um trecho do nome do carro a ser buscado");
+        var filterName = reader.next();
 
-            models.stream()
-                    .filter(m -> m.name().toUpperCase().contains(modelFilter.toUpperCase()))
-                    .map(m -> new Model(m.code(), m.name()))
-                    .forEach(System.out::println);
-        }
+        System.out.println(filterName);
+        List<Datas> filtedModels = models.models().stream()
+                .filter(m -> m.name().toLowerCase().contains(filterName.toLowerCase()))
+                .toList();
 
-        System.out.println("Digite o código do modelo escolhido: ");
+        System.out.println("\nModelos filtrados: ");
+        filtedModels.forEach(System.out::println);
+
+        System.out.println("Digite por favor o código do modelo para buscar os valores de avaliação");
         var modelId = reader.nextInt();
 
-        json = consumer.runQuery(QUERY_URL + chosenModel + brandId + "/models/" + modelId + "/years/");
+        json = consumer.runQuery(QUERY_URL + chosenModel + brandId + "/modelos/" + modelId + "/anos/");
+        List<Datas> years = converter.getList(json, Datas.class);
+        List<Vehicle> vehicles = new ArrayList<>();
 
-        List<Data> years = converter.getList(json, Data.class);
 
-        years.stream()
-                .map(y -> new Year(y.code(), y.name()))
-                .forEach(y -> );
+        for (int i = 0; i < years.size(); i++) {
+            var yearsUrl = QUERY_URL + chosenModel + brandId + "/modelos/" + modelId + "/anos/" + years.get(i).code();
+            json = consumer.runQuery(yearsUrl);
+            Vehicle vehicle = converter.getData(json, Vehicle.class);
+            vehicles.add(vehicle);
+        }
+
+        System.out.println("\nTodos os veículos filtrados com avaliações por ano");
+        vehicles.forEach(System.out::println);
 
 
     }

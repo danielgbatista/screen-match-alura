@@ -1,10 +1,10 @@
 package br.com.alura.tabelafipe.model;
 
-public class Model {
+public class Models {
     private String code;
     private String name;
 
-    public Model(String code, String model){
+    public Models(String code, String model){
         this.code = code;
         this.name = model;
     }
@@ -12,6 +12,6 @@ public class Model {
     @Override
     public String toString() {
         return "Código:" + code +
-                " Modelo:" + name ;
+                " Descrição:" + name ;
     }
 }
